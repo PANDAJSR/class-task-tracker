@@ -13,11 +13,9 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      // 启用Node.js集成
+      // 启用Node.js集成（用于require模块）
       nodeIntegration: true,
-      contextIsolation: false,
-      // 允许在渲染进程中使用require
-      enableRemoteModule: true
+      contextIsolation: false
     },
     // 窗口标题
     title: '班级任务统计助手',
@@ -28,10 +26,29 @@ function createWindow() {
   // 加载index.html文件
   mainWindow.loadFile('index.html');
 
+  // 当页面加载完成后，注入electronAPI
+  mainWindow.webContents.on('did-finish-load', () => {
+    const code = `
+      window.electronAPI = {
+        onWindowResize: (callback) => {
+          const { ipcRenderer } = require('electron');
+          ipcRenderer.on('window-resize', (event, size) => callback(size));
+        },
+        removeAllListeners: (channel) => {
+          const { ipcRenderer } = require('electron');
+          ipcRenderer.removeAllListeners(channel);
+        }
+      };
+    `;
+    mainWindow.webContents.executeJavaScript(code);
+  });
+
   // 开发工具（在开发模式下打开）
-  if (process.argv.includes('--dev')) {
-    mainWindow.webContents.openDevTools();
-  }
+  // 临时：总是打开开发工具以便调试
+  mainWindow.webContents.openDevTools();
+  // if (process.argv.includes('--dev')) {
+  //   mainWindow.webContents.openDevTools();
+  // }
 
   // 当窗口关闭时触发
   mainWindow.on('closed', () => {

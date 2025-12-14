@@ -1,0 +1,65 @@
+# 依赖包
+node_modules/
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 运行时数据
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# 生成的文件夹
+dist/
+build/
+release/
+out/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# IDE 配置文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Electron 打包文件
+app/
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+
+# 缓存文件
+.cache/
+.parcel-cache/
+
+# 测试覆盖率
+coverage/
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# Claude 配置
+.claude/
