@@ -1,0 +1,21 @@
+{
+  "name": "class-task-tracker",
+  "version": "1.0.0",
+  "description": "班级任务统计助手 - 用于统计班级学习任务完成情况",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": [
+    "electron",
+    "class",
+    "task",
+    "tracker"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3"
+  }
+}
