@@ -68,5 +68,10 @@
     "portable": {
       "artifactName": "${productName}.exe"
     }
-  }
+  },
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/PANDAJSR/class-task-tracker.git"
+    }
+
 }
