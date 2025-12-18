@@ -3,19 +3,70 @@
   "version": "1.0.0",
   "description": "班级任务统计助手 - 用于统计班级学习任务完成情况",
   "main": "main.js",
+  "homepage": ".",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev"
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:win:portable": "electron-builder --win portable",
+    "build:dir": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "electron",
     "class",
     "task",
-    "tracker"
+    "tracker",
+    "教育",
+    "统计"
   ],
-  "author": "",
+  "author": "PANDA-JSR",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^28.3.3"
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.pandajsr.class-task-tracker",
+    "productName": "班级任务统计助手",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "*.js",
+      "*.html",
+      "*.css",
+      "!node_modules/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "sign": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "班级任务统计助手"
+    },
+    "portable": {
+      "artifactName": "${productName}.exe"
+    }
   }
 }

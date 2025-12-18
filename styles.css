@@ -206,11 +206,7 @@ button {
   text-align: center;
   padding: 10px;
   user-select: none;
-  transition: left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              transform 0.4s ease,
-              box-shadow 0.3s ease,
-              opacity 0.2s ease 0.4s;
+  transition: none; /* 初始状态没有动画，由JS动态添加 */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -221,11 +217,23 @@ button {
   opacity: 1; /* 确保初始状态是可见的 */
 }
 
-/* 鼠标悬停时的动画效果 */
+/* 泡泡动画状态 - 窗口调整时的大小和位置变化 */
+.bubble.animating {
+  transition: left 1.2s cubic-bezier(0.25, 0.8, 0.25, 1),
+              top 1.2s cubic-bezier(0.25, 0.8, 0.25, 1),
+              width 1.2s cubic-bezier(0.4, 0.0, 0.2, 1),
+              height 1.2s cubic-bezier(0.4, 0.0, 0.2, 1),
+              font-size 1.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  will-change: left, top, width, height, font-size;
+}
+
+/* 鼠标悬停时的动画效果 - 更流畅的缩放 */
 .bubble:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 25px rgba(255, 255, 255, 0.3);
   z-index: 10; /* 提高z-index，确保在顶层 */
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.4s ease;
 }
 
 /* 移动中的泡泡（在动画期间） */
@@ -239,17 +247,11 @@ button {
   opacity: 0;
 }
 
-.bubble:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 25px rgba(255, 255, 255, 0.3);
-  z-index: 100;
-}
-
 .bubble.removing {
   /* 先缩小到几乎看不见（0.1倍），保持透明度 */
   transform: scale(0.1);
   /* 只在最后0.2秒淡出 */
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0s,
+  transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0s,
               opacity 0.2s ease 0.4s;
 }
 

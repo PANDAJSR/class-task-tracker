@@ -62,32 +62,68 @@ function init() {
     }
   });
 
-  // 监听窗口大小变化事件（带防抖）
-  let resizeTimer = null;
-  if (electronAPI) {
-    electronAPI.onWindowResize((size) => {
-      if (bubblesSection.style.display !== 'none') {
-        if (resizeTimer) {
-          clearTimeout(resizeTimer);
-        }
+  // 等待electronAPI准备好
+  console.log('等待electronAPI可用...');
+  const checkElectronAPI = setInterval(() => {
+    if (window.electronAPI && window.electronAPI.onWindowResize) {
+      console.log('electronAPI已可用，注册窗口大小变化监听');
+      clearInterval(checkElectronAPI);
 
-        resizeTimer = setTimeout(() => {
-          console.log('窗口大小变化，开始重新布局...');
-          const dims = Utils.updateContainerSize(bubblesContainer);
-          BubbleGenerator.setContainerSize(dims.width, dims.height);
-          handleRedistributeBubbles();
-          resizeTimer = null;
-        }, 300);
+      // 监听窗口大小变化事件（带防抖）
+      let resizeTimer = null;
+      try {
+        window.electronAPI.onWindowResize((size) => {
+          console.log('收到窗口大小变化事件:', size);
+          if (bubblesSection.style.display !== 'none') {
+            if (resizeTimer) {
+              clearTimeout(resizeTimer);
+            }
+
+            resizeTimer = setTimeout(() => {
+              console.log('窗口大小变化，开始重新布局...');
+              const dims = Utils.updateContainerSize(bubblesContainer);
+              console.log('更新后的容器尺寸:', dims);
+              BubbleGenerator.setContainerSize(dims.width, dims.height);
+              handleRedistributeBubbles();
+              resizeTimer = null;
+            }, 300);
+          }
+        });
+        console.log('窗口大小变化监听注册成功(electronAPI方式)');
+      } catch (error) {
+        console.error('注册窗口监听失败:', error);
       }
-    });
-  } else {
-    console.warn('electronAPI 未定义，窗口大小变化监听将不可用');
-  }
+    } else {
+      console.log('electronAPI还未准备好，继续等待...');
+    }
+  }, 100);
+  setTimeout(() => clearInterval(checkElectronAPI), 5000); // 5秒后停止检查
+
+  // 备用方案：使用原生JS监听窗口大小变化
+  console.log('注册备用窗口大小变化监听(resize事件)');
+  let nativeResizeTimer = null;
+  window.addEventListener('resize', () => {
+    if (bubblesSection.style.display !== 'none') {
+      console.log('收到原生resize事件');
+      if (nativeResizeTimer) {
+        clearTimeout(nativeResizeTimer);
+      }
+
+      nativeResizeTimer = setTimeout(() => {
+        console.log('原生resize事件触发，开始重新布局...');
+        const dims = Utils.updateContainerSize(bubblesContainer);
+        console.log('原生方式更新后的容器尺寸:', dims);
+        BubbleGenerator.setContainerSize(dims.width, dims.height);
+        handleRedistributeBubbles();
+        nativeResizeTimer = null;
+      }, 300);
+    }
+  });
 
   // 初始化容器大小
   updateContainerSizeInternal();
 
-  console.log('应用初始化完成');
+  console.log('应用初始化完成，等待electronAPI...');
 }
 
 // ============================================================================
@@ -150,14 +186,21 @@ function handleRandomLayout() {
   const containerWidth = window.containerWidth;
   const containerHeight = window.containerHeight;
 
-  if (!bubbles || bubbles.length === 0) return;
+  if (!bubbles || bubbles.length === 0) {
+    console.log('没有泡泡可以布局');
+    return;
+  }
 
   console.log('执行自适应布局算法...');
+  console.log(`- 泡泡数量: ${bubbles.length}`);
+  console.log(`- 容器尺寸: ${containerWidth}x${containerHeight}`);
 
   // 第1步：计算每个泡泡的大小
   const bubbleSizes = BubbleGenerator.calculateBubbleSizes(containerWidth, containerHeight);
+  console.log(`- 计算出${bubbleSizes.length}个泡泡的大小`);
 
   // 第2步：应用泡泡大小
+  console.log('正在应用泡泡大小...');
   bubbleSizes.forEach(({ index, size }) => {
     const bubble = bubbles[index];
     if (!bubble || !bubble.element) return;
@@ -165,28 +208,31 @@ function handleRandomLayout() {
     bubble.size = size;
     const fontSize = Math.max(12, size / 4);
 
-    bubble.element.style.transition = 'none';
+    // 添加动画类，启用平滑过渡
+    bubble.element.classList.add('animating');
+
+    // 应用新的尺寸
     bubble.element.style.width = `${size}px`;
     bubble.element.style.height = `${size}px`;
     bubble.element.style.fontSize = `${fontSize}px`;
 
+    // 动画结束后移除动画类（避免影响其他交互）
     setTimeout(() => {
-      bubble.element.style.transition =
-        'left 0.6s cubic-bezier(0.4, 0, 0.2, 1), top 0.6s cubic-bezier(0.4, 0, 0.2, 1), ' +
-        'transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease';
-    }, 50);
+      bubble.element.classList.remove('animating');
+    }, 1300); // 比动画时长略长
   });
 
   console.log('泡泡大小已分配，开始智能布局...');
 
   // 第3步：智能放置泡泡
+  console.log('调用智能布局算法...');
   const positions = LayoutAlgorithm.placeBubblesIntelligently(
     bubbles,
     bubbleSizes,
     containerWidth,
     containerHeight,
     ({ animations, movingBubbleIds }) => {
-      console.log(`准备执行${animations.length}个泡泡的批量动画`);
+      console.log(`- 计算出${animations.length}个泡泡的新位置`);
 
       // 使用动画控制器执行批量动画
       AnimationController.applyBatchAnimations(
@@ -199,6 +245,7 @@ function handleRandomLayout() {
     }
   );
 
+  console.log(`布局算法执行完成，返回${positions.length}个位置数据`);
   return positions;
 }
 
@@ -214,6 +261,12 @@ function handleRedistributeBubbles() {
   }
 
   console.log('开始重新排列泡泡...');
+
+  // 强制浏览器重新计算布局
+  bubblesContainer.style.visibility = 'hidden';
+  bubblesContainer.offsetHeight; // 触发重排
+  bubblesContainer.style.visibility = '';
+
   handleRandomLayout();
 }
 

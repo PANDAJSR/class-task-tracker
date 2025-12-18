@@ -28,27 +28,40 @@ function createWindow() {
 
   // 当页面加载完成后，注入electronAPI
   mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Main process: 页面加载完成，准备注入electronAPI');
     const code = `
       window.electronAPI = {
         onWindowResize: (callback) => {
-          const { ipcRenderer } = require('electron');
-          ipcRenderer.on('window-resize', (event, size) => callback(size));
+          console.log('Renderer: 注册窗口大小变化监听');
+          const handler = (event, size) => {
+            console.log('Renderer: 收到window-resize事件', size);
+            callback(size);
+          };
+          require('electron').ipcRenderer.on('window-resize', handler);
+          // 保存handler引用以便后面移除
+          window.__resizeHandler = handler;
         },
         removeAllListeners: (channel) => {
-          const { ipcRenderer } = require('electron');
-          ipcRenderer.removeAllListeners(channel);
+          console.log('Renderer: 移除监听器', channel);
+          if (channel === 'window-resize' && window.__resizeHandler) {
+            require('electron').ipcRenderer.removeListener('window-resize', window.__resizeHandler);
+            window.__resizeHandler = null;
+          } else {
+            require('electron').ipcRenderer.removeAllListeners(channel);
+          }
         }
       };
+      console.log('Renderer: electronAPI已注入');
     `;
     mainWindow.webContents.executeJavaScript(code);
+    console.log('Main process: electronAPI注入完成');
   });
 
   // 开发工具（在开发模式下打开）
-  // 临时：总是打开开发工具以便调试
-  mainWindow.webContents.openDevTools();
-  // if (process.argv.includes('--dev')) {
-  //   mainWindow.webContents.openDevTools();
-  // }
+  // 只有在命令行包含 --dev 参数时才打开开发者工具
+  if (process.argv.includes('--dev')) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // 当窗口关闭时触发
   mainWindow.on('closed', () => {
@@ -57,9 +70,12 @@ function createWindow() {
 
   // 监听窗口大小变化事件，通知渲染进程
   mainWindow.on('resize', () => {
+    console.log('Main process: 检测到窗口resize事件');
     const { width, height } = mainWindow.getBounds();
+    console.log(`Main process: 窗口尺寸 ${width}x${height}`);
     if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send('window-resize', { width, height });
+      console.log('Main process: 已发送 window-resize 事件到渲染进程');
     }
   });
 }

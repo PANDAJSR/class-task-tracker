@@ -130,7 +130,7 @@ function markAsCompleted(studentId, bubbles, onAnimationComplete, onBubbleRemove
 
 /**
  * 应用批量动画（使用requestAnimationFrame优化）
- * 关键点：批量动画 + 统一动画开始时间 + 性能优化
+ * 关键点：批量动画 + 统一动画开始时间 + 性能优化 + 流畅的动画曲线
  */
 function applyBatchAnimations(animations, movingBubbleIds, onComplete) {
   if (!animations || animations.length === 0) {
@@ -144,27 +144,33 @@ function applyBatchAnimations(animations, movingBubbleIds, onComplete) {
 
   // 使用requestAnimationFrame批量执行所有动画，避免卡顿
   requestAnimationFrame(() => {
-    // 先给所有要移动的泡泡添加moving类（提高z-index）
+    // 先给所有要移动的泡泡添加moving类（提高z-index）和animating类（启用平滑动画）
     nonNullAnimations.forEach(({ element }) => {
       if (element) {
-        element.classList.add('moving');
+        element.classList.add('moving', 'animating');
       }
     });
 
-    // 延迟一小段时间后执行动画，确保样式应用
+    // 延迟一小段时间后应用位置变化，确保动画类已生效
     setTimeout(() => {
-      batchAnimate(nonNullAnimations, () => {
-        // 动画完成后，移除moving类，并重置状态
-        setTimeout(() => {
-          nonNullAnimations.forEach(({ element }) => {
-            if (element) {
-              element.classList.remove('moving');
-            }
-          });
-          window.isRedistributing = false;
-          onComplete && onComplete();
-        }, 100);
+      // 直接设置位置，CSS动画会自动过渡
+      nonNullAnimations.forEach(({ element, x, y }) => {
+        if (element) {
+          element.style.left = `${x}px`;
+          element.style.top = `${y}px`;
+        }
       });
+
+      // 动画结束后清理
+      setTimeout(() => {
+        nonNullAnimations.forEach(({ element }) => {
+          if (element) {
+            element.classList.remove('moving', 'animating');
+          }
+        });
+        window.isRedistributing = false;
+        onComplete && onComplete();
+      }, 1300); // 比动画时长略长，确保动画完成
     }, 50);
   });
 }
