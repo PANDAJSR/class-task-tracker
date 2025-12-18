@@ -73,7 +73,7 @@ function generateBubbles(studentNamesTextarea, bubblesContainer) {
 }
 
 /**
- * 创建单个泡泡元素
+ * 创建单 bubbles元素
  * @param {Object} student - 学生数据对象
  * @param {HTMLElement} container - 泡泡容器
  * @param {Function} onClick - 点击回调函数
@@ -163,16 +163,16 @@ function generateBubbles(studentNamesTextarea, bubblesContainer, onBubbleClick) 
 }
 
 /**
- * 计算并分配每个泡泡的大小
+ * 计算并分配每 bubbles sizes
  * 根据space-filling算法，动态分配大小以最大化填充率
- * @returns {Array} 每个泡泡的推荐大小
+ * @returns {Array} 每 bubbles的推荐大小
  */
 function calculateBubbleSizes(containerWidth, containerHeight) {
   if (bubbles.length === 0) return [];
 
   // 计算基础大小
   const baseSize = findBaseBubbleSize(containerWidth, containerHeight);
-  console.log(`基础泡泡大小: ${baseSize}px (所有泡泡一样大时的最大尺寸)`);
+  console.log(`Base bubble size: ${baseSize}px (maximum size when all bubbles are equal)`);
 
   // 减少浮动范围到±10%
   const sizeVariation = 0.1;
@@ -186,10 +186,10 @@ function calculateBubbleSizes(containerWidth, containerHeight) {
     [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
   }
 
-  console.log(`泡泡大小范围: ${minSize.toFixed(0)}px - ${maxSize.toFixed(0)}px`);
-  console.log(`大小浮动范围: ±${(sizeVariation * 100).toFixed(0)}%`);
+  console.log(`Bubble size range: ${minSize.toFixed(0)}px - ${maxSize.toFixed(0)}px`);
+  console.log(`Size variation range: ±${(sizeVariation * 100).toFixed(0)}%`);
 
-  // 为每个泡泡分配大小
+  // 为每 bubbles分配大小
   const sizeAssignments = [];
   const bigCount = Math.floor(bubbles.length * 0.3);
   const smallCount = Math.floor(bubbles.length * 0.3);
@@ -216,7 +216,7 @@ function calculateBubbleSizes(containerWidth, containerHeight) {
   }
 
   sizeAssignments.forEach(({ index, size }) => {
-    console.log(`泡泡 ${bubbles[index].student.name}: 分配大小=${size}px (基础=${baseSize}px)`);
+    console.log(`Bubble ${bubbles[index].student.name}: Assigned size=${size}px (base=${baseSize}px)`);
   });
 
   return sizeAssignments;

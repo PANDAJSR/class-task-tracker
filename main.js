@@ -28,13 +28,13 @@ function createWindow() {
 
   // 当页面加载完成后，注入electronAPI
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Main process: 页面加载完成，准备注入electronAPI');
+    console.log('Main process: Page loaded, injecting electronAPI');
     const code = `
       window.electronAPI = {
         onWindowResize: (callback) => {
-          console.log('Renderer: 注册窗口大小变化监听');
+          console.log('Renderer: Registering window resize listener');
           const handler = (event, size) => {
-            console.log('Renderer: 收到window-resize事件', size);
+            console.log('Renderer: Received window-resize event', size);
             callback(size);
           };
           require('electron').ipcRenderer.on('window-resize', handler);
@@ -42,7 +42,7 @@ function createWindow() {
           window.__resizeHandler = handler;
         },
         removeAllListeners: (channel) => {
-          console.log('Renderer: 移除监听器', channel);
+          console.log('Renderer: Removing listener', channel);
           if (channel === 'window-resize' && window.__resizeHandler) {
             require('electron').ipcRenderer.removeListener('window-resize', window.__resizeHandler);
             window.__resizeHandler = null;
@@ -51,10 +51,10 @@ function createWindow() {
           }
         }
       };
-      console.log('Renderer: electronAPI已注入');
+      console.log('Renderer: electronAPI injected');
     `;
     mainWindow.webContents.executeJavaScript(code);
-    console.log('Main process: electronAPI注入完成');
+    console.log('Main process: electronAPI injection completed');
   });
 
   // 开发工具（在开发模式下打开）
@@ -70,12 +70,12 @@ function createWindow() {
 
   // 监听窗口大小变化事件，通知渲染进程
   mainWindow.on('resize', () => {
-    console.log('Main process: 检测到窗口resize事件');
+    console.log('Main process: Window resize event detected');
     const { width, height } = mainWindow.getBounds();
-    console.log(`Main process: 窗口尺寸 ${width}x${height}`);
+    console.log(`Main process: Window size ${width}x${height}`);
     if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send('window-resize', { width, height });
-      console.log('Main process: 已发送 window-resize 事件到渲染进程');
+      console.log('Main process: Sent window-resize event to renderer');
     }
   });
 }

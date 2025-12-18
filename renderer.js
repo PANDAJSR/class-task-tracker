@@ -33,7 +33,7 @@ const remainingCount = document.getElementById('remaining-count');
  * 绑定所有事件监听器并初始化状态
  */
 function init() {
-  console.log('应用初始化中...');
+  console.log('Initializing application...');
 
   // 绑定事件监听器
   generateBtn.addEventListener('click', handleGenerateBubbles);
@@ -54,7 +54,7 @@ function init() {
     if (e.key === 'Escape' && bubblesSection.style.display !== 'none') {
       const bubbles = BubbleGenerator.bubbles();
       if (bubbles.length > 0) {
-        const confirmed = confirm('确定要返回输入界面吗？当前进度将会丢失。');
+        const confirmed = confirm('Return to input interface? Current progress will be lost.');
         if (confirmed) {
           handleResetApp();
         }
@@ -63,56 +63,56 @@ function init() {
   });
 
   // 等待electronAPI准备好
-  console.log('等待electronAPI可用...');
+  console.log('Waiting for electronAPI to be available...');
   const checkElectronAPI = setInterval(() => {
     if (window.electronAPI && window.electronAPI.onWindowResize) {
-      console.log('electronAPI已可用，注册窗口大小变化监听');
+      console.log('electronAPI is available, registering window resize listener');
       clearInterval(checkElectronAPI);
 
       // 监听窗口大小变化事件（带防抖）
       let resizeTimer = null;
       try {
         window.electronAPI.onWindowResize((size) => {
-          console.log('收到窗口大小变化事件:', size);
+          console.log('Received window resize event:', size);
           if (bubblesSection.style.display !== 'none') {
             if (resizeTimer) {
               clearTimeout(resizeTimer);
             }
 
             resizeTimer = setTimeout(() => {
-              console.log('窗口大小变化，开始重新布局...');
+              console.log('Window resized, starting relayout...');
               const dims = Utils.updateContainerSize(bubblesContainer);
-              console.log('更新后的容器尺寸:', dims);
+              console.log('Updated container dimensions:', dims);
               BubbleGenerator.setContainerSize(dims.width, dims.height);
               handleRedistributeBubbles();
               resizeTimer = null;
             }, 300);
           }
         });
-        console.log('窗口大小变化监听注册成功(electronAPI方式)');
+        console.log('Window resize listener registered (electronAPI method)');
       } catch (error) {
         console.error('注册窗口监听失败:', error);
       }
     } else {
-      console.log('electronAPI还未准备好，继续等待...');
+      console.log('electronAPI not ready yet, continue waiting...');
     }
   }, 100);
   setTimeout(() => clearInterval(checkElectronAPI), 5000); // 5秒后停止检查
 
   // 备用方案：使用原生JS监听窗口大小变化
-  console.log('注册备用窗口大小变化监听(resize事件)');
+  console.log('Registering backup window resize listener (resize event)');
   let nativeResizeTimer = null;
   window.addEventListener('resize', () => {
     if (bubblesSection.style.display !== 'none') {
-      console.log('收到原生resize事件');
+      console.log('Received native resize event');
       if (nativeResizeTimer) {
         clearTimeout(nativeResizeTimer);
       }
 
       nativeResizeTimer = setTimeout(() => {
-        console.log('原生resize事件触发，开始重新布局...');
+        console.log('Native resize event triggered, starting relayout...');
         const dims = Utils.updateContainerSize(bubblesContainer);
-        console.log('原生方式更新后的容器尺寸:', dims);
+        console.log('Updated container dimensions (native method):', dims);
         BubbleGenerator.setContainerSize(dims.width, dims.height);
         handleRedistributeBubbles();
         nativeResizeTimer = null;
@@ -123,7 +123,7 @@ function init() {
   // 初始化容器大小
   updateContainerSizeInternal();
 
-  console.log('应用初始化完成，等待electronAPI...');
+  console.log('Application initialization completed, waiting for electronAPI...');
 }
 
 // ============================================================================
@@ -134,7 +134,7 @@ function init() {
  * 生成泡泡按钮点击处理
  */
 async function handleGenerateBubbles() {
-  console.log('开始生成泡泡...');
+  console.log('Starting bubble generation...');
 
   const result = await BubbleGenerator.generateBubbles(
     studentNamesTextarea,
@@ -143,7 +143,7 @@ async function handleGenerateBubbles() {
   );
 
   if (!result) {
-    console.error('生成泡泡失败');
+    console.error('Bubble generation failed');
     return;
   }
 
@@ -156,7 +156,7 @@ async function handleGenerateBubbles() {
 
   // 延迟一段时间后进行初始布局
   setTimeout(() => {
-    console.log('执行初始布局算法...');
+    console.log('Executing initial layout algorithm...');
     handleDistributeBubbles();
   }, 300);
 }
@@ -169,7 +169,7 @@ async function handleDistributeBubbles() {
   const bubbles = BubbleGenerator.bubbles();
   if (!bubbles || bubbles.length === 0) return;
 
-  console.log(`开始初始布局，泡泡数量: ${bubbles.length}`);
+  console.log(`Starting initial layout, bubble count: ${bubbles.length}`);
 
   // 更新容器大小
   updateContainerSizeInternal();
@@ -187,20 +187,20 @@ function handleRandomLayout() {
   const containerHeight = window.containerHeight;
 
   if (!bubbles || bubbles.length === 0) {
-    console.log('没有泡泡可以布局');
+    console.log('No bubbles to layout');
     return;
   }
 
-  console.log('执行自适应布局算法...');
-  console.log(`- 泡泡数量: ${bubbles.length}`);
-  console.log(`- 容器尺寸: ${containerWidth}x${containerHeight}`);
+  console.log('Executing adaptive layout algorithm...');
+  console.log(`- Bubble count: ${bubbles.length}`);
+  console.log(`- Container size: ${containerWidth}x${containerHeight}`);
 
-  // 第1步：计算每个泡泡的大小
+  // 第1步：计算每 bubbles sizes
   const bubbleSizes = BubbleGenerator.calculateBubbleSizes(containerWidth, containerHeight);
-  console.log(`- 计算出${bubbleSizes.length}个泡泡的大小`);
+  console.log(`- Calculated${bubbleSizes.length} bubbles sizes`);
 
   // 第2步：应用泡泡大小
-  console.log('正在应用泡泡大小...');
+  console.log('Applying bubble sizes...');
   bubbleSizes.forEach(({ index, size }) => {
     const bubble = bubbles[index];
     if (!bubble || !bubble.element) return;
@@ -222,30 +222,30 @@ function handleRandomLayout() {
     }, 1300); // 比动画时长略长
   });
 
-  console.log('泡泡大小已分配，开始智能布局...');
+  console.log('Bubble sizes assigned, starting intelligent layout...');
 
   // 第3步：智能放置泡泡
-  console.log('调用智能布局算法...');
+  console.log('Calling intelligent layout algorithm...');
   const positions = LayoutAlgorithm.placeBubblesIntelligently(
     bubbles,
     bubbleSizes,
     containerWidth,
     containerHeight,
     ({ animations, movingBubbleIds }) => {
-      console.log(`- 计算出${animations.length}个泡泡的新位置`);
+      console.log(`- Calculated${animations.length} new bubble positions`);
 
       // 使用动画控制器执行批量动画
       AnimationController.applyBatchAnimations(
         animations,
         movingBubbleIds,
         () => {
-          console.log('所有泡泡布局动画完成');
+          console.log('All bubble layout animations completed');
         }
       );
     }
   );
 
-  console.log(`布局算法执行完成，返回${positions.length}个位置数据`);
+  console.log(`Layout algorithm completed, returned${positions.length} position data entries`);
   return positions;
 }
 
@@ -256,11 +256,11 @@ function handleRedistributeBubbles() {
   const bubbles = BubbleGenerator.bubbles();
 
   if (!bubbles || bubbles.length === 0) {
-    console.log('没有泡泡需要重新排列');
+    console.log('No bubbles need to be rearranged');
     return;
   }
 
-  console.log('开始重新排列泡泡...');
+  console.log('Starting bubble rearrangement...');
 
   // 强制浏览器重新计算布局
   bubblesContainer.style.visibility = 'hidden';
@@ -353,11 +353,11 @@ function updateStatsInternal() {
 window.adjustWindowSize = function() {
   const bubbles = BubbleGenerator.bubbles();
   if (!bubbles || bubbles.length === 0) {
-    console.log('请先创建一些泡泡！');
+    console.log('Please create some bubbles first!');
     return;
   }
 
-  console.log('\n=== 手动触发泡泡重新排列 ===');
+  console.log('\n=== Manual bubble rearrangement triggered ===');
   updateContainerSizeInternal();
   handleRedistributeBubbles();
 };
@@ -366,12 +366,12 @@ window.adjustWindowSize = function() {
  * 查看当前泡泡的大小信息（测试用）
  */
 window.testBubbleSizes = function() {
-  console.log('\n=== 泡泡大小信息 ===');
+  console.log('\n=== Bubble size information ===');
 
   const bubbles = BubbleGenerator.bubbles();
 
   if (!bubbles || bubbles.length === 0) {
-    console.log('没有泡泡可以显示');
+    console.log('No bubbles to display');
     return;
   }
 
@@ -380,8 +380,8 @@ window.testBubbleSizes = function() {
     const width = element.style.width;
     const height = element.style.height;
 
-    console.log(`学生: ${student.name}`);
-    console.log(`  - 当前大小: ${size}px`);
+    console.log(`Student: ${student.name}`);
+    console.log(`  - Current size: ${size}px`);
     console.log(`  - DOM width: ${width}, height: ${height}`);
     console.log('');
   });

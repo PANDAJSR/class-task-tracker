@@ -206,7 +206,8 @@ button {
   text-align: center;
   padding: 10px;
   user-select: none;
-  transition: none; /* 初始状态没有动画，由JS动态添加 */
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.4s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -223,17 +224,16 @@ button {
               top 1.2s cubic-bezier(0.25, 0.8, 0.25, 1),
               width 1.2s cubic-bezier(0.4, 0.0, 0.2, 1),
               height 1.2s cubic-bezier(0.4, 0.0, 0.2, 1),
-              font-size 1.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+              font-size 1.2s cubic-bezier(0.4, 0.0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   will-change: left, top, width, height, font-size;
 }
 
-/* 鼠标悬停时的动画效果 - 更流畅的缩放 */
+/* 鼠标悬停时的动画效果 - 放大 */
 .bubble:hover {
   transform: scale(1.15);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 25px rgba(255, 255, 255, 0.3);
   z-index: 10; /* 提高z-index，确保在顶层 */
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-              box-shadow 0.4s ease;
 }
 
 /* 移动中的泡泡（在动画期间） */
@@ -241,18 +241,15 @@ button {
   z-index: 100; /* 移动中的泡泡在最高层 */
 }
 
-/* 移除时的动画 - 先缩小到几乎看不见，然后淡出 */
+/* 移除时的动画 - 缩小到完全看不见，然后淡出 */
 .bubble.removing {
-  transform: scale(0.1);
+  /* 缩小到完全看不见（0倍），使用弹性曲线 */
+  transform: scale(0);
+  /* 同时淡出 */
   opacity: 0;
-}
-
-.bubble.removing {
-  /* 先缩小到几乎看不见（0.1倍），保持透明度 */
-  transform: scale(0.1);
-  /* 只在最后0.2秒淡出 */
-  transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0s,
-              opacity 0.2s ease 0.4s;
+  /* 平滑的缩小和淡出动画，持续时间更长 */
+  transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1),
+              opacity 0.6s ease;
 }
 
 /* 泡泡渐变背景色 - 现在通过JavaScript设置固定颜色 */

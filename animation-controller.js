@@ -85,7 +85,7 @@ function batchAnimate(animations, onAllComplete) {
 }
 
 /**
- * 标记学生为已完成（带动画）
+ * 标记学生为already completed（带动画）
  * @param {number} studentId - 学生ID
  * @param {Array} bubbles - 泡泡数据数组
  * @param {Function} onAnimationComplete - 动画完成回调
@@ -109,23 +109,24 @@ function markAsCompleted(studentId, bubbles, onAnimationComplete, onBubbleRemove
   // 添加移除动画类
   bubbleData.element.classList.add('removing');
 
-  console.log(`开始执行学生${bubbleData.student.name}的移除动画...`);
+  console.log(`Starting removal animation for student${bubbleData.student.name}...`);
 
-  // 等待泡泡缩小并淡出动画完成（0.6s）
+  // 等待泡泡缩小并淡出动画完成（700ms）
+  // 多给100ms确保动画完全结束
   setTimeout(() => {
     bubbleData.element.remove();
 
     // 调用回调
     onBubbleRemoved && onBubbleRemoved(studentId);
 
-    // 只有在这个泡泡的移除动画完全结束后才重新排列
+    // 只有在这 bubbles的移除动画完全结束后才重新排列
     if (bubbles.length > 0) {
-      console.log(`泡泡${bubbleData.student.name}已移除，开始重新排列${bubbles.length}个剩余泡泡...`);
+      console.log(`Bubble ${bubbleData.student.name} removed, starting rearrangement of ${bubbles.length} remaining bubbles...`);
       onAnimationComplete && onAnimationComplete(studentId);
     } else {
-      console.log('所有泡泡已完成，无需重新排列');
+      console.log('All bubbles completed, no rearrangement needed');
     }
-  }, 600); // 与CSS中的animation时间一致
+  }, 700); // CSS动画是0.6s，这里多给0.1s确保完全结束
 }
 
 /**
@@ -140,7 +141,7 @@ function applyBatchAnimations(animations, movingBubbleIds, onComplete) {
 
   const nonNullAnimations = animations.filter(a => a.element);
 
-  console.log(`准备执行${nonNullAnimations.length}个泡泡的批量动画...`);
+  console.log(`Preparing to execute ${nonNullAnimations.length} bubble batch animations...`);
 
   // 使用requestAnimationFrame批量执行所有动画，避免卡顿
   requestAnimationFrame(() => {

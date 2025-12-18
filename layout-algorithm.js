@@ -18,28 +18,28 @@
 //
 // 3. 智能放置 (placeBubbles)
 //    - 网格参考系统：先计算理想网格位置
-//    - 分层搜索：前50%尝试在网格附近，后50%完全随机
-//    - 300次尝试，确保找到合适位置
+//    - 分层搜索：前50%Attempting在网格附近，后50%完全随机
+//    - 300次Attempting，确保找到合适位置
 //
 // ============================================================================
 
 /**
  * 自适应布局算法（泡泡可以不同大小）
  * 核心目标：通过允许泡泡大小不同，进一步减少空白区域
- * 算法：计算基础大小 → 为每个泡泡分配大小 → 智能放置
+ * 算法：计算基础大小 → 为每 bubbles分配大小 → 智能放置
  */
 function randomLayout(bubbles, containerWidth, containerHeight, updateUI) {
   if (!bubbles || bubbles.length === 0) return;
 
   // 请将calculateBubbleSizes从bubble-generator.js中导入并使用
-  console.log('执行自适应布局算法...');
+  console.log('Executing adaptive layout algorithm...');
   // 此函数需要通过updateUI回调来应用布局结果
   updateUI && updateUI({ success: true, layout: 'random' });
 }
 
 /**
  * 智能放置泡泡（改进算法 - 使用requestAnimationFrame优化性能）
- * 关键点：批量动画 + 统一动画开始时间 + 增加尝试次数 + 更好的初始位置 + 分层放置
+ * 关键点：批量动画 + 统一动画开始时间 + 增加Attempting次数 + 更好的初始位置 + 分层放置
  * @param {Array} bubbles - 泡泡数据数组
  * @param {Array} bubbleSizes - 泡泡大小分配数组
  * @param {number} containerWidth - 容器宽度
@@ -71,9 +71,9 @@ function placeBubblesIntelligently(bubbles, bubbleSizes, containerWidth, contain
   const cols = Math.max(1, Math.floor(availableWidth / (baseSize + margin)));
   const rows = Math.max(1, Math.floor(availableHeight / (baseSize + margin)));
 
-  console.log(`尝试${cols}x${rows}网格布局（${cols * rows}个位置）来放置${bubbleSizes.length}个泡泡`);
+  console.log(`Attempting${cols}x${rows}grid layout (${cols * rows} positions) to place${bubbleSizes.length} bubbles`);
 
-  // 为每个泡泡计算初始网格位置
+  // 为每 bubbles计算初始网格位置
   const gridPositions = [];
   for (let i = 0; i < rows && gridPositions.length < bubbleSizes.length; i++) {
     for (let j = 0; j < cols && gridPositions.length < bubbleSizes.length; j++) {
@@ -166,7 +166,7 @@ function placeBubblesIntelligently(bubbles, bubbleSizes, containerWidth, contain
     }
   }
 
-  console.log(`成功放置${occupiedPositions.length}个泡泡，成功率${(occupiedPositions.length / bubbleSizes.length * 100).toFixed(1)}%`);
+  console.log(`Successfully placed ${occupiedPositions.length} bubbles, success rate: ${(occupiedPositions.length / bubbleSizes.length * 100).toFixed(1)}%`);
 
   // 回调函数
   if (onPositionCalculated) {
@@ -196,7 +196,7 @@ function hexagonalPackingLayout(bubbles, containerWidth, containerHeight, onLayo
     return;
   }
 
-  // 假设所有泡泡大小相同（取第一个泡泡的大小）
+  // 假设所有泡泡大小相同（取第一 bubbles sizes）
   const size = bubbles[0].size || 100;
   const margin = size * 0.15;
 
@@ -239,7 +239,7 @@ function hexagonalPackingLayout(bubbles, containerWidth, containerHeight, onLayo
 
   // 如果有剩余的泡泡无法放置，随机放置它们
   if (index < bubbles.length) {
-    console.warn(`六边形密铺无法容纳${bubbles.length - index}个泡泡，改用随机放置`);
+    console.warn(`六边形密铺无法容纳${bubbles.length - index} bubbles，改用随机放置`);
     const remainingPositions = placeRemainingRandomly(
       bubbles.slice(index),
       occupiedPositions,

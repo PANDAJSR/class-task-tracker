@@ -91,7 +91,7 @@ function throttle(func, limit) {
 }
 
 /**
- * 检查是否所有学生都已完成
+ * 检查是否所有学生都already completed
  * @param {Array} students - 学生数组
  * @returns {boolean} 是否全部完成
  */
@@ -204,7 +204,7 @@ function resetApp(elements, bubbleModule, animationModule) {
     statElements.remainingCount.textContent = '0';
   }
 
-  console.log('应用已重置');
+  console.log('Application has been reset');
   return Promise.resolve(true);
 }
 
